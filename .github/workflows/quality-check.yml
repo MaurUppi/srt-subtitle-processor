@@ -132,10 +132,10 @@ jobs:
         python src/main.py samples/05.en.srt --check-only
         
         # Test SDH removal (v2.6 default behavior)
-        python src/main.py samples/05.en.srt --output-file test_output.srt
+        python src/main.py samples/05.en.srt test_output.srt
         
         # Test keeping SDH markers
-        python src/main.py samples/05.en.srt --keep-sdh --output-file test_output_with_sdh.srt
+        python src/main.py samples/05.en.srt test_output_with_sdh.srt --keep-sdh
         
         # Verify outputs
         if [ -f test_output.srt ]; then
