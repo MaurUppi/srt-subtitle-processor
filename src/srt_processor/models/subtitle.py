@@ -104,12 +104,12 @@ class SubtitleBlock:
 
     def is_sdh_only_block(self) -> bool:
         """Check if this block contains ONLY SDH markers without dialogue content.
-        
+
         Returns True for blocks that contain only:
         - Music markers (♪♪, ♪♪♪)
         - Pure audio descriptions [Music plays], [Chuckles]
         - Sound effects [Mobile vibrates], [Knock on door]
-        
+
         Returns False for blocks that contain dialogue mixed with SDH:
         - "-[ Sobbing ] It's Cal." (dialogue with SDH)
         - "Hello? [Mobile vibrates]" (mixed content)
@@ -117,171 +117,171 @@ class SubtitleBlock:
         """
         if not self.lines:
             return False
-            
+
         # Join all lines to analyze the complete text
         full_text = self.text.strip()
-        
+
         if not full_text:
             return False
-        
+
         # Enhanced SDH patterns
-        music_patterns = [r'^♪+$', r'^🎵+$', r'^🎶+$']
+        music_patterns = [r"^♪+$", r"^🎵+$", r"^🎶+$"]
         audio_description_patterns = [
-            r'^\[\s*.*?\s*\]$',  # Pure audio descriptions like [Music plays]
-            r'^\(\s*.*?\s*\)$',  # Sound effects in ASCII parentheses
-            r'^（\s*.*?\s*）$',   # Sound effects in full-width parentheses
-            r'^【\s*.*?\s*】$',   # Chinese-style audio descriptions
-            r'^《\s*.*?\s*》$',   # Chinese-style audio descriptions
-            r'^［\s*.*?\s*］$',   # Full-width square brackets
-            r'^〔\s*.*?\s*〕$',   # Japanese/Chinese square brackets
-            r'^〈\s*.*?\s*〉$',   # Angle brackets
+            r"^\[\s*.*?\s*\]$",  # Pure audio descriptions like [Music plays]
+            r"^\(\s*.*?\s*\)$",  # Sound effects in ASCII parentheses
+            r"^（\s*.*?\s*）$",  # Sound effects in full-width parentheses
+            r"^【\s*.*?\s*】$",  # Chinese-style audio descriptions
+            r"^《\s*.*?\s*》$",  # Chinese-style audio descriptions
+            r"^［\s*.*?\s*］$",  # Full-width square brackets
+            r"^〔\s*.*?\s*〕$",  # Japanese/Chinese square brackets
+            r"^〈\s*.*?\s*〉$",  # Angle brackets
         ]
-        
+
         # Check if entire block is just music markers
         for pattern in music_patterns:
             if re.match(pattern, full_text):
                 return True
-        
+
         # Check if entire block is just audio descriptions
         for pattern in audio_description_patterns:
             if re.match(pattern, full_text):
                 return True
-        
+
         # Check each line individually for pure SDH content
         for line in self.lines:
             line = line.strip()
             if not line:
                 continue
-                
+
             # Skip empty or whitespace-only lines
             if not line:
                 continue
-                
+
             # Check if line contains any actual dialogue content
             # Remove SDH markers and see if meaningful content remains
             temp_line = line
-            
+
             # Remove music markers
-            temp_line = re.sub(r'♪+|🎵+|🎶+', '', temp_line)
-            
+            temp_line = re.sub(r"♪+|🎵+|🎶+", "", temp_line)
+
             # Remove audio descriptions
-            temp_line = re.sub(r'\[.*?\]|\(.*?\)|【.*?】|《.*?》', '', temp_line)
-            
+            temp_line = re.sub(r"\[.*?\]|\(.*?\)|【.*?】|《.*?》", "", temp_line)
+
             # Remove dialogue markers and whitespace
-            temp_line = re.sub(r'^-\s*', '', temp_line).strip()
-            
+            temp_line = re.sub(r"^-\s*", "", temp_line).strip()
+
             # If anything meaningful remains after removing SDH markers,
             # this is not an SDH-only block
             if temp_line and len(temp_line) > 0:
                 return False
-        
+
         # If we get here, all lines were pure SDH content
         return True
 
     def clean_sdh_markers(self) -> "SubtitleBlock":
         """Create a new SubtitleBlock with SDH markers removed from dialogue lines.
-        
+
         This method removes SDH markers like [Chuckles], [Sighs], etc. from lines
         while preserving the actual dialogue content.
-        
+
         Examples:
         - "[ Sighs ] Hold on." → "Hold on."
         - "-[ Sobbing ] Ruth?" → "- Ruth?"
         - "Whoo! Whoo!\n-[ Chuckles ]" → "Whoo! Whoo!"
-        
+
         Returns:
             New SubtitleBlock with cleaned lines
         """
         cleaned_lines = []
-        
+
         for line in self.lines:
             original_line = line.strip()
             if not original_line:
                 continue
-                
+
             # Clean the line by removing SDH markers
             cleaned_line = self._remove_sdh_from_line(original_line)
-            
+
             # Only add non-empty lines
             if cleaned_line.strip():
                 cleaned_lines.append(cleaned_line)
-        
+
         # Create new block with cleaned lines
         return SubtitleBlock(
             index=self.index,
             time_code=self.time_code,
             lines=cleaned_lines,
             language=self.language,
-            is_sdh=self.is_sdh
+            is_sdh=self.is_sdh,
         )
 
     def _remove_sdh_from_line(self, line: str) -> str:
         """Remove SDH markers from a single line while preserving dialogue.
-        
+
         Args:
             line: Original line text
-            
+
         Returns:
             Cleaned line with SDH markers removed
         """
         # Enhanced SDH marker patterns with Unicode support
         sdh_patterns = [
             # Audio descriptions in square brackets (ASCII)
-            r'\[\s*[^\]]*\s*\]',
+            r"\[\s*[^\]]*\s*\]",
             # Audio descriptions in parentheses (ASCII)
-            r'\(\s*[^)]*\s*\)',
+            r"\(\s*[^)]*\s*\)",
             # Audio descriptions in full-width parentheses (Unicode/Chinese)
-            r'（\s*[^）]*\s*）',
+            r"（\s*[^）]*\s*）",
             # Chinese-style audio descriptions
-            r'【\s*[^】]*\s*】',
-            r'《\s*[^》]*\s*》',
+            r"【\s*[^】]*\s*】",
+            r"《\s*[^》]*\s*》",
             # Music markers (Unicode and ASCII)
-            r'♪+',
-            r'🎵+',
-            r'🎶+',
+            r"♪+",
+            r"🎵+",
+            r"🎶+",
             # Additional Unicode brackets/parentheses variants
-            r'［\s*[^］]*\s*］',  # Full-width square brackets
-            r'〔\s*[^〕]*\s*〕',  # Japanese/Chinese square brackets
-            r'〈\s*[^〉]*\s*〉',  # Angle brackets
-            r'「\s*[^」]*\s*」',  # Japanese quotation marks (sometimes used for SDH)
+            r"［\s*[^］]*\s*］",  # Full-width square brackets
+            r"〔\s*[^〕]*\s*〕",  # Japanese/Chinese square brackets
+            r"〈\s*[^〉]*\s*〉",  # Angle brackets
+            r"「\s*[^」]*\s*」",  # Japanese quotation marks (sometimes used for SDH)
         ]
-        
+
         cleaned = line
-        
+
         # Remove all SDH patterns iteratively
         for pattern in sdh_patterns:
-            cleaned = re.sub(pattern, '', cleaned)
-        
+            cleaned = re.sub(pattern, "", cleaned)
+
         # Clean up whitespace and formatting
         cleaned = self._clean_whitespace(cleaned)
-        
+
         return cleaned
 
     def _clean_whitespace(self, text: str) -> str:
         """Clean up whitespace after SDH removal.
-        
+
         Args:
             text: Text to clean
-            
+
         Returns:
             Text with normalized whitespace
         """
         # Remove extra spaces
-        cleaned = re.sub(r'\s+', ' ', text)
-        
+        cleaned = re.sub(r"\s+", " ", text)
+
         # Fix dialogue marker spacing: "- text" or "-text" → "- text"
-        cleaned = re.sub(r'^-\s*', '- ', cleaned)
-        
+        cleaned = re.sub(r"^-\s*", "- ", cleaned)
+
         # Fix multiple dashes that can occur after SDH removal: "- -text" → "- text"
-        cleaned = re.sub(r'^-\s*-\s*', '- ', cleaned)
-        
+        cleaned = re.sub(r"^-\s*-\s*", "- ", cleaned)
+
         # Remove leading/trailing whitespace
         cleaned = cleaned.strip()
-        
+
         # Handle case where only dialogue marker remains
-        if cleaned == '-':
-            return ''
-            
+        if cleaned == "-":
+            return ""
+
         return cleaned
 
     def get_reading_speed(self) -> float:
@@ -324,10 +324,10 @@ class SRTDocument:
 
     def remove_sdh_only_blocks(self) -> "SRTDocument":
         """Create a new document with SDH-only blocks removed and indices resorted.
-        
+
         This removes blocks that contain ONLY SDH markers (music, sound effects, etc.)
         while preserving dialogue blocks that may contain embedded SDH markers.
-        
+
         Returns:
             New SRTDocument with filtered blocks and resorted indices
         """
@@ -335,52 +335,56 @@ class SRTDocument:
         filtered_blocks = [
             block for block in self.blocks if not block.is_sdh_only_block()
         ]
-        
+
         # Resort indices sequentially
         for i, block in enumerate(filtered_blocks):
             block.index = i + 1
-        
+
         # Create new document with filtered blocks
         return SRTDocument(
             blocks=filtered_blocks,
             source_file=self.source_file,
             detected_language=self.detected_language,
-            encoding=self.encoding
+            encoding=self.encoding,
         )
 
     def remove_sdh_blocks_and_clean_content(self) -> "SRTDocument":
         """Create a new document with SDH-only blocks removed and SDH markers cleaned from remaining blocks.
-        
+
         This performs comprehensive SDH removal:
         1. Removes blocks that contain ONLY SDH markers
         2. Removes SDH markers from mixed content blocks (dialogue + SDH)
         3. Resorts indices sequentially
-        
+
         Returns:
             New SRTDocument with filtered and cleaned blocks
         """
         processed_blocks = []
-        
+
         for block in self.blocks:
             # Skip SDH-only blocks entirely
             if block.is_sdh_only_block():
                 continue
-                
+
             # For mixed content blocks, clean SDH markers but preserve dialogue
             cleaned_block = block.clean_sdh_markers()
-            if cleaned_block and cleaned_block.lines and any(line.strip() for line in cleaned_block.lines):
+            if (
+                cleaned_block
+                and cleaned_block.lines
+                and any(line.strip() for line in cleaned_block.lines)
+            ):
                 processed_blocks.append(cleaned_block)
-        
+
         # Resort indices sequentially
         for i, block in enumerate(processed_blocks):
             block.index = i + 1
-        
+
         # Create new document with processed blocks
         return SRTDocument(
             blocks=processed_blocks,
             source_file=self.source_file,
             detected_language=self.detected_language,
-            encoding=self.encoding
+            encoding=self.encoding,
         )
 
     def to_srt_format(self) -> str:
