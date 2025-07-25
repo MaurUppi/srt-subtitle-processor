@@ -1,5 +1,11 @@
 # SRT Subtitle Processor v2.6
 
+[![Quality Check](https://github.com/MaurUppi/srt-subtitle-processor/actions/workflows/quality-check.yml/badge.svg)](https://github.com/MaurUppi/srt-subtitle-processor/actions/workflows/quality-check.yml)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/MaurUppi/srt-subtitle-processor/graphs/commit-activity)
+
 A sophisticated multi-language subtitle processing tool that implements Netflix-compliant subtitle standards with intelligent line breaking, enhanced bilingual validation, and **default SDH removal** for improved readability.
 
 ## 🌟 Features
@@ -259,12 +265,35 @@ demo.py                 # Demonstration script
 - **Processing Speed**: Optimized for batch processing large subtitle libraries
 - **Memory Efficient**: Streaming processing for large files
 
+## 🛡️ Quality & Security
+
+This project maintains high code quality and security standards through automated checks:
+
+### **Code Quality**
+- **Formatting**: Code formatted with [Black](https://github.com/psf/black) (88-character line length)
+- **Import Sorting**: Imports organized with [isort](https://pycqa.github.io/isort/)
+- **Linting**: Code quality checked with [flake8](https://flake8.pycqa.org/)
+- **Complexity**: Maximum cyclomatic complexity of 10
+
+### **Security Scanning**
+- **Vulnerability Detection**: Dependencies scanned with [Safety](https://pyup.io/safety/)
+- **Security Linting**: Source code analyzed with [Bandit](https://bandit.readthedocs.io/)
+- **Automated Reports**: Security findings uploaded as CI artifacts
+
+### **Continuous Integration**
+- **Quality Check**: Automated formatting and security scanning on every commit
+- **Basic Functionality**: CLI functionality tested with sample files
+- **Cross-Platform**: Compatible with Linux, macOS, and Windows
+
+All checks must pass before code can be merged to the main branch.
+
 ## 🤝 Contributing
 
 1. Follow existing code style (Black, isort, flake8)
 2. Add comprehensive tests for new features
 3. Update documentation for API changes
 4. Ensure Netflix standard compliance
+5. All CI checks must pass
 
 ## 📄 License
 
