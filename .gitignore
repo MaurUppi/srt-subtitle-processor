@@ -156,6 +156,7 @@ Desktop.ini
 *_violation.srt
 
 # Temporary test files
+tests/
 test_*.py
 temp_*.py
 

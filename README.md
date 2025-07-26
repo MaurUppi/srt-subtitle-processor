@@ -69,14 +69,14 @@ A sophisticated multi-language subtitle processing tool that implements Netflix-
 
 ```bash
 # Set up & activate virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 
 # Install development dependencies (optional)
-pip install -r requirements-dev.txt
+uv pip install -r requirements-dev.txt
 
 # Exit when done
 deactivate
